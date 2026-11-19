@@ -3,19 +3,31 @@ name: Run Tests
 on:
   pull_request:
   push:
-    branches: main 
+    branches: [main]
+
 permissions:
   contents: read
+
 jobs:
-  grades-api:
+  run-tests:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    steps:
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          python: ["3.12", "3.13"]
+        suite: [unit, api, lint]
+        exclude:
+          - python: "3.13"
+            suite: lint
+steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      - uses: ./.github/actions/setup-service
         with:
-          python-version: "3.13"
-      - working-directory: services/python/grades-api
+          python-version: "3.12"
+install_python: ${{ startsWith(matrix.service, 'services/python/') }}
+      - working-directory: ${{ matrix.service }}
         run: make install-ci
-      - working-directory: services/python/grades-api
+      - working-directory: ${{ matrix.service }}
         run: make test
