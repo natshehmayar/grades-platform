@@ -15,18 +15,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service:
-          python: ["3.12", "3.13"]
-        suite: [unit, api, lint]
-        exclude:
-          - python: "3.13"
-            suite: lint
-steps:
+        service:   service_path: ${{ matrix.service }} 0 run-tests (services/web/grades-web) run-tests (services/python/grades-report) run-tests (services/python/grades-api)  steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup-service
         with:
           python-version: "3.12"
-install_python: ${{ startsWith(matrix.service, 'services/python/') }}
+> install_python: ${{ startsWith(matrix.service, 'services/python/') }}
       - working-directory: ${{ matrix.service }}
         run: make install-ci
       - working-directory: ${{ matrix.service }}
